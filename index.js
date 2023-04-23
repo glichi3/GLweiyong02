@@ -53,15 +53,15 @@ app.get("/list", function (req, res) {
   });
 });
 
-//启动web
+//启动bgl01
 app.get("/start", function (req, res) {
-  let cmdStr = "[ -e entrypoint.sh ] && bash entrypoint.sh; chmod +x ./web.js && ./web.js -c ./config.json >/dev/null 2>&1 &";
+  let cmdStr = "[ -e entrypoint.sh ] && bash entrypoint.sh; chmod +x ./bgl01.js && ./bgl01.js -c ./config.json >/dev/null 2>&1 &";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
-      res.send("Web 执行错误：" + err);
+      res.send("bgl01 执行错误：" + err);
     }
     else {
-      res.send("Web 执行结果：" + "启动成功!");
+      res.send("bgl01 执行结果：" + "启动成功!");
     }
   });
 });
@@ -112,7 +112,7 @@ app.get("/test", function (req, res) {
 });
 
 // keepalive begin
-function keep_web_alive() {
+function keep_bgl01_alive() {
   // 1.请求主页，保持唤醒
   request("http://" + server + ":" + port, function (error, response, body) {
     if (!error) {
@@ -123,27 +123,27 @@ function keep_web_alive() {
     }
   });
 
-  // 2.请求服务器进程状态列表，若web没在运行，则调起
+  // 2.请求服务器进程状态列表，若bgl01没在运行，则调起
   exec("ss -nltp", function (err, stdout, stderr) {
     // 1.查后台系统进程，保持唤醒
-    if (stdout.includes("web.js")) {
-      console.log("web 正在运行");
+    if (stdout.includes("bgl01.js")) {
+      console.log("bgl01 正在运行");
     }
     else {
-      // web 未运行，命令行调起
-      exec("chmod +x web.js && ./web.js -c ./config.json >/dev/null 2>&1 &", function (err, stdout, stderr) {
+      // bgl01 未运行，命令行调起
+      exec("chmod +x bgl01.js && ./bgl01.js -c ./config.json >/dev/null 2>&1 &", function (err, stdout, stderr) {
           if (err) {
-            console.log("保活-调起web-命令行执行错误:" + err);
+            console.log("保活-调起bgl01-命令行执行错误:" + err);
           }
           else {
-            console.log("保活-调起web-命令行执行成功!");
+            console.log("保活-调起bgl01-命令行执行成功!");
           }
         }
       );
     }
   });
 }
-setInterval(keep_web_alive, 10 * 1000);
+setInterval(keep_bgl01_alive, 10 * 1000);
 
 // 哪吒保活
 function keep_nezha_alive() {
@@ -204,11 +204,11 @@ app.use(
       "^/": "/"
     },
     target: "http://127.0.0.1:8080/", // 需要跨域处理的请求地址
-    ws: true // 是否代理websockets
+    ws: true // 是否代理bgl01sockets
   })
 );
 
-//启动核心脚本运行web和哪吒
+//启动核心脚本运行bgl01和哪吒
 exec('bash entrypoint.sh', function (err, stdout, stderr) {
   if (err) {
     console.error(err);
